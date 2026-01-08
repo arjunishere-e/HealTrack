@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "578288858034",
+    "project_id": "healtrack-2a168",
+    "storage_bucket": "healtrack-2a168.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:578288858034:android:0783de8eed24e46f486aab",
+        "android_client_info": {
+          "package_name": "com.example.nova"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "578288858034-c7n2arbsnj3bihfg2m589vk3fqtdmgun.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nova",
+            "certificate_hash": "4df23c3c5dbc7c7edacc703c510c197c04b69532"
+          }
+        },
+        {
+          "client_id": "578288858034-j89o4eiogutf8n35bd4se5pio39rjgmb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpOpV_d85rsKDBC6k-BXEHSNzxF7pEBZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "578288858034-j89o4eiogutf8n35bd4se5pio39rjgmb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "578288858034-1qb9fc05j2anlpcebhjm0fevcqkd5ma9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.nova"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

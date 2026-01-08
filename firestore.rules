@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Communities collection - visible to all authenticated users
+    match /communities/{communityId} {
+      // Anyone authenticated can read all communities
+      allow read: if request.auth != null;
+      
+      // Only authenticated users can create communities
+      allow create: if request.auth != null 
+                    && request.resource.data.creator == request.auth.uid
+                    && request.resource.data.members.hasAll([request.auth.uid]);
+      
+      // Users can update communities (for joining, incrementing member count, etc.)
+      allow update: if request.auth != null;
+      
+      // Only the creator can delete a community
+      allow delete: if request.auth != null 
+                    && resource.data.creator == request.auth.uid;
+      
+      // Posts subcollection
+      match /posts/{postId} {
+        // Anyone authenticated can read all posts in a community
+        allow read: if request.auth != null;
+        
+        // Only community members can create posts
+        allow create: if request.auth != null 
+                      && request.resource.data.authorId == request.auth.uid;
+        
+        // Users can update posts (for likes)
+        allow update: if request.auth != null;
+        
+        // Only post author can delete their posts
+        allow delete: if request.auth != null 
+                      && resource.data.authorId == request.auth.uid;
+      }
+    }
+    
+    // User profiles and nested collections (e.g., tasks, diary, progress)
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+
+      // tasks subcollection: owned by the user
+      match /tasks/{taskId} {
+        allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // diary subcollection: personal diary entries
+      match /diary/{entryId} {
+        allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // progress subcollection: streak tracking data
+      match /progress/{progressId} {
+        allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Success stories
+    match /stories/{storyId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null 
+                            && resource.data.userId == request.auth.uid;
+    }
+    
+    // Reports
+    match /reports/{reportId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null 
+                            && resource.data.userId == request.auth.uid;
+    }
+  }
+}

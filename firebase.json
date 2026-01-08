@@ -1,0 +1,28 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "healtrack-2a168",
+          "appId": "1:578288858034:android:0783de8eed24e46f486aab",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "healtrack-2a168",
+          "configurations": {
+            "android": "1:578288858034:android:0783de8eed24e46f486aab",
+            "ios": "1:578288858034:ios:c062e4f8e2fe3ffe486aab",
+            "macos": "1:578288858034:ios:c062e4f8e2fe3ffe486aab",
+            "web": "1:578288858034:web:73ed7c6b9af40b40486aab",
+            "windows": "1:578288858034:web:9c9cff852f877f08486aab"
+          }
+        }
+      }
+    }
+  }
+}
