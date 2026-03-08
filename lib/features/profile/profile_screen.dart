@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/theme/app_theme.dart';
 import '../home/homescreen.dart';
 import '../forum/community_forum_screen.dart';
 import '../report/report_case_screen.dart';
@@ -18,14 +19,13 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? _user;
-  bool _isUpdatingName = false;
-  bool _isSendingReset = false;
   int _completedTasks = 0;
-  int _pendingTasks = 0;
   int? _pressedNavIndex;
 
   static const Color emerald = Color(0xFF00D4A4);
   static const Color primaryBlue = Color(0xFF0066FF);
+  static const Color pageBackground = Color(0xFFF4F6FB);
+  static const Color shellBackground = Color(0xFFF9FBFF);
 
   String get _badgeLabel {
     if (_completedTasks >= 20) return 'Champion';
@@ -84,26 +84,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _sendPasswordReset() async {
     if (_user?.email == null) return;
     try {
-      setState(() => _isSendingReset = true);
       await _auth.sendPasswordResetEmail(email: _user!.email!);
       _showSnack('Password reset email sent!');
     } catch (e) {
       _showSnack('Error: ${e.toString()}', isError: true);
-    } finally {
-      setState(() => _isSendingReset = false);
     }
   }
 
-  @override
+  BoxDecoration _softPanel({
+    required List<Color> colors,
+    required Color borderColor,
+  }) {
+    return BoxDecoration(
+      gradient: LinearGradient(
+        colors: colors,
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: borderColor),
+      boxShadow: [
+        BoxShadow(
+          color: borderColor.withOpacity(0.14),
+          blurRadius: 16,
+          offset: const Offset(0, 8),
+        ),
+      ],
+    );
+  }
+
   Widget build(BuildContext context) {
     if (_user == null) {
       return Scaffold(
-        backgroundColor: const Color(0xFFEFF3FF),
+        backgroundColor: pageBackground,
         appBar: AppBar(
           title: const Text('Profile',
               style: TextStyle(fontWeight: FontWeight.bold)),
-          backgroundColor: emerald,
-          foregroundColor: Colors.black,
+          backgroundColor: shellBackground,
+          foregroundColor: AppTheme.textPrimary,
           elevation: 0,
           centerTitle: true,
         ),
@@ -116,12 +134,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final email = _user?.email ?? 'Not available';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF3FF),
+      backgroundColor: pageBackground,
       appBar: AppBar(
         title: const Text('Profile',
             style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: emerald,
-        foregroundColor: Colors.black,
+        backgroundColor: shellBackground,
+        foregroundColor: AppTheme.textPrimary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -135,34 +153,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [primaryBlue, emerald],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 16,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
+                decoration: _softPanel(
+                  colors: const [Color(0xFFEEF4FF), Color(0xFFE2ECFF)],
+                  borderColor: const Color(0xFFCBDCF8),
                 ),
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      radius: 32,
-                      backgroundColor: Colors.white,
-                      child: Text(
-                        displayName.isNotEmpty
-                            ? displayName[0].toUpperCase()
-                            : 'U',
-                        style: const TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: primaryBlue,
+                    Container(
+                      width: 68,
+                      height: 68,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF5E8EDC),
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      child: Center(
+                        child: Text(
+                          displayName.isNotEmpty
+                              ? displayName[0].toUpperCase()
+                              : 'U',
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -174,16 +187,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(
                             displayName,
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Color(0xFF21334F),
                               fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             email,
                             style: const TextStyle(
-                              color: Colors.white70,
+                              color: Color(0xFF61718C),
                               fontSize: 14,
                             ),
                           ),
@@ -198,10 +211,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Account Section
               Text(
                 'Account',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.textPrimary,
+                    ),
               ),
               const SizedBox(height: 12),
               _infoRow(
@@ -227,10 +240,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Progress & Badges
               Text(
                 'Progress & Badges',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.textPrimary,
+                    ),
               ),
               const SizedBox(height: 12),
               StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -257,23 +270,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
 
                   _completedTasks = completed;
-                  _pendingTasks = incomplete;
                   final total = completed + incomplete;
                   final progress =
                       total == 0 ? 0.0 : (completed / total).clamp(0.0, 1.0);
 
                   return Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.08),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                    decoration: _softPanel(
+                      colors: const [Color(0xFFF7F1FB), Color(0xFFECE1F7)],
+                      borderColor: const Color(0xFFD9C8EC),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,11 +288,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: emerald.withOpacity(0.12),
-                                shape: BoxShape.circle,
+                                color: const Color(0xFF8A63D2),
+                                borderRadius: BorderRadius.circular(18),
                               ),
                               child: const Icon(Icons.emoji_events,
-                                  color: emerald),
+                                  color: Colors.white),
                             ),
                             const SizedBox(width: 12),
                             Column(
@@ -297,14 +302,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   _badgeLabel,
                                   style: const TextStyle(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF2E2142),
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Earned by completing tasks',
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.grey[700]),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF6C6182),
+                                  ),
                                 ),
                               ],
                             ),
@@ -336,16 +344,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: LinearProgressIndicator(
                             value: progress,
                             minHeight: 12,
-                            backgroundColor: Colors.grey.withOpacity(0.2),
-                            valueColor:
-                                const AlwaysStoppedAnimation(Color(0xFF0066FF)),
+                            backgroundColor: Colors.white.withOpacity(0.65),
+                            valueColor: const AlwaysStoppedAnimation(
+                              Color(0xFF8A63D2),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Progress: ${(progress * 100).toStringAsFixed(0)}%',
-                          style:
-                              TextStyle(fontSize: 12, color: Colors.grey[700]),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF6C6182),
+                          ),
                         ),
                       ],
                     ),
@@ -368,9 +379,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: const Color(0xFFD95F39),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -393,16 +404,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+      decoration: _softPanel(
+        colors: const [Color(0xFFFFFBF7), Color(0xFFF9F4EF)],
+        borderColor: const Color(0xFFF0DDD1),
       ),
       child: Row(
         children: [
@@ -412,13 +416,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: onIconTap != null
-                    ? Colors.blue.withOpacity(0.1)
-                    : Colors.grey.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10),
+                    ? const Color(0xFFDCE8FF)
+                    : const Color(0xFFF2EEE8),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 onIconTap != null ? Icons.edit : icon,
-                color: onIconTap != null ? Colors.blue : Colors.black87,
+                color: onIconTap != null
+                    ? const Color(0xFF426AA6)
+                    : const Color(0xFF7A5A50),
               ),
             ),
           ),
@@ -432,7 +438,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black54,
+                    color: Color(0xFF8A7B72),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -440,8 +446,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   value,
                   style: const TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
               ],
@@ -454,20 +460,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _statCard(
       {required String title, required String value, required Color color}) {
+    final borderColor = color.withOpacity(0.24);
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.2)),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style:
-                TextStyle(color: Colors.grey[800], fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: Colors.grey[800],
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 6),
           Text(

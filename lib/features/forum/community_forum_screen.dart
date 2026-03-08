@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../core/theme/app_theme.dart';
 import '../home/homescreen.dart';
 import '../profile/profile_screen.dart';
 import '../report/report_case_screen.dart';
@@ -17,12 +18,54 @@ class CommunityForumScreen extends StatefulWidget {
 
 class _CommunityForumScreenState extends State<CommunityForumScreen> {
   static const Color emerald = Color(0xFF00D4A4);
-  static const Color primaryBlue = Color(0xFF0066FF);
+  static const Color pageBackground = Color(0xFFF4F6FB);
+  static const Color shellBackground = Color(0xFFF9FBFF);
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   int? _pressedNavIndex;
+
+  Map<String, Color> _communityPalette(int index) {
+    switch (index % 3) {
+      case 0:
+        return {
+          'background': const Color(0xFFFFF4ED),
+          'border': const Color(0xFFF1C9B5),
+          'block': const Color(0xFFF7CDB8),
+          'iconBackground': const Color(0xFFD95F39),
+          'iconTint': Colors.white,
+          'chipBackground': const Color(0xFFFFE5D8),
+          'chipText': const Color(0xFF9C442B),
+          'title': const Color(0xFF3C1F18),
+          'body': const Color(0xFF7A5A50),
+        };
+      case 1:
+        return {
+          'background': const Color(0xFFEEF4FF),
+          'border': const Color(0xFFCBDCF8),
+          'block': const Color(0xFFD7E5FF),
+          'iconBackground': const Color(0xFF5E8EDC),
+          'iconTint': Colors.white,
+          'chipBackground': const Color(0xFFDCE8FF),
+          'chipText': const Color(0xFF426AA6),
+          'title': const Color(0xFF21334F),
+          'body': const Color(0xFF61718C),
+        };
+      default:
+        return {
+          'background': const Color(0xFFF3F7EC),
+          'border': const Color(0xFFD4DECA),
+          'block': const Color(0xFFE0EBCF),
+          'iconBackground': const Color(0xFF6D8B45),
+          'iconTint': Colors.white,
+          'chipBackground': const Color(0xFFE6F0D8),
+          'chipText': const Color(0xFF526B31),
+          'title': const Color(0xFF2E3524),
+          'body': const Color(0xFF6E7565),
+        };
+    }
+  }
 
   void _addCommunity() {
     final nameController = TextEditingController();
@@ -149,18 +192,19 @@ class _CommunityForumScreenState extends State<CommunityForumScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF3FF),
+      backgroundColor: pageBackground,
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
           'Community',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AppTheme.textPrimary,
           ),
         ),
-        backgroundColor: emerald,
-        foregroundColor: Colors.white,
+        backgroundColor: shellBackground,
+        foregroundColor: AppTheme.textPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
         elevation: 0,
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -171,7 +215,7 @@ class _CommunityForumScreenState extends State<CommunityForumScreen> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(color: emerald),
+              child: CircularProgressIndicator(color: AppTheme.primary),
             );
           }
 
@@ -190,33 +234,54 @@ class _CommunityForumScreenState extends State<CommunityForumScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _heroCard(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
                   _buildToolbar(),
                   const SizedBox(height: 16),
                   if (communities.isEmpty)
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 40),
-                        child: Column(
-                          children: [
-                            Icon(Icons.people,
-                                size: 64, color: Colors.grey.shade400),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No communities yet',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade600,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: shellBackground,
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(color: const Color(0xFFE0E6F2)),
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 72,
+                                height: 72,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFDCE8FF),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: const Icon(Icons.people,
+                                    size: 34, color: Color(0xFF426AA6)),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Create one to get started!',
-                              style:
-                                  TextStyle(fontSize: 14, color: Colors.grey),
-                            ),
-                          ],
+                              const SizedBox(height: 16),
+                              const Text(
+                                'No communities yet',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Create the first space and start a calmer, more supportive conversation.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppTheme.textSecondary,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     )
@@ -229,7 +294,7 @@ class _CommunityForumScreenState extends State<CommunityForumScreen> {
                       itemBuilder: (context, index) {
                         final doc = communities[index];
                         final data = doc.data() as Map<String, dynamic>;
-                        return _communityCard(doc.id, data);
+                        return _communityCard(doc.id, data, index);
                       },
                     ),
                   const SizedBox(height: 32),
@@ -240,11 +305,12 @@ class _CommunityForumScreenState extends State<CommunityForumScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: primaryBlue,
+        backgroundColor: const Color(0xFF5E8EDC),
+        elevation: 4,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
           'New Community',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
         ),
         onPressed: _addCommunity,
       ),
@@ -255,57 +321,96 @@ class _CommunityForumScreenState extends State<CommunityForumScreen> {
   Widget _heroCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [primaryBlue, emerald],
+          colors: [Color(0xFFEEF4FF), Color(0xFFE2ECFF)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: const Color(0xFFCBDCF8)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: const Color(0xFF5E8EDC).withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.forum, color: Colors.white, size: 28),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Share. Support. Grow.',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
+                width: 132,
+                height: 116,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFC7DAFF),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(36),
                   ),
                 ),
-                SizedBox(height: 6),
-                Text(
-                  'Join communities, ask questions, and uplift others on the journey.',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+            Positioned(
+              bottom: 18,
+              right: 24,
+              child: Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 62,
+                    height: 62,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5E8EDC),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(Icons.forum_rounded,
+                        color: Colors.white, size: 28),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Share. Support. Grow.',
+                          style: TextStyle(
+                            color: Color(0xFF21334F),
+                            fontSize: 21,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          'Join communities, ask questions, and uplift others on the journey.',
+                          style: TextStyle(
+                            color: Color(0xFF61718C),
+                            fontSize: 13,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -317,13 +422,23 @@ class _CommunityForumScreenState extends State<CommunityForumScreen> {
           child: TextField(
             decoration: InputDecoration(
               hintText: 'Search communities...',
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon:
+                  const Icon(Icons.search, color: AppTheme.textSecondary),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: shellBackground,
               contentPadding: const EdgeInsets.symmetric(vertical: 0),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(18),
+                borderSide: const BorderSide(color: Color(0xFFE0E6F2)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: const BorderSide(color: Color(0xFFE0E6F2)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide:
+                    const BorderSide(color: Color(0xFFCBDCF8), width: 1.5),
               ),
             ),
             onChanged: (q) {
@@ -334,24 +449,32 @@ class _CommunityForumScreenState extends State<CommunityForumScreen> {
         const SizedBox(width: 12),
         ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
-            backgroundColor: emerald,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            backgroundColor: const Color(0xFFD6E3BF),
+            foregroundColor: const Color(0xFF526B31),
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
           onPressed: _addCommunity,
-          icon: const Icon(Icons.add, color: Colors.white),
+          icon: const Icon(Icons.add, color: Color(0xFF526B31)),
           label: const Text(
             'Create',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Color(0xFF526B31),
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _communityCard(String communityId, Map<String, dynamic> data) {
+  Widget _communityCard(
+      String communityId, Map<String, dynamic> data, int index) {
+    final palette = _communityPalette(index);
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -365,66 +488,106 @@ class _CommunityForumScreenState extends State<CommunityForumScreen> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          color: palette['background'],
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: palette['border']!),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: palette['iconBackground']!.withValues(alpha: 0.08),
+              blurRadius: 14,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  width: 108,
+                  height: 94,
                   decoration: BoxDecoration(
-                    color: emerald.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.groups, color: emerald, size: 22),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data['name'] ?? 'Community',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${data['memberCount'] ?? 0} members',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
+                    color: palette['block']!,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                    ),
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios,
-                    color: Colors.grey, size: 16),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              data['description'] ?? '',
-              style: const TextStyle(fontSize: 13, color: Colors.black87),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: palette['iconBackground']!,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(Icons.groups_rounded,
+                              color: palette['iconTint']!, size: 24),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                data['name'] ?? 'Community',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: palette['title']!,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: palette['chipBackground']!,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  '${data['memberCount'] ?? 0} members',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: palette['chipText']!,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios_rounded,
+                            color: palette['chipText']!, size: 16),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      data['description'] ?? '',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: palette['body']!,
+                        height: 1.35,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
