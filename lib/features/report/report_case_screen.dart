@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
@@ -31,7 +30,6 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
 
   List<XFile> _images = [];
   XFile? _video;
-  PlatformFile? _document;
 
   @override
   void initState() {
@@ -82,20 +80,8 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
   }
 
   Future<void> _pickDocument() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx', 'txt'],
-      );
-      if (result != null) {
-        setState(() {
-          _document = result.files.first;
-        });
-        _showSnackBar('Document selected successfully');
-      }
-    } catch (e) {
-      _showSnackBar('Error picking document: $e', isError: true);
-    }
+    // Document picking disabled - file_picker package removed
+    _showSnackBar('Document feature coming soon', isError: false);
   }
 
   Future<void> _toggleLiveLocation() async {
@@ -443,9 +429,8 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
 
   void _submitReport() {
     // Validate evidence (at least one required)
-    if (_images.isEmpty && _video == null && _document == null) {
-      _showSnackBar(
-          'Please provide at least one evidence (photo, video, or document)',
+    if (_images.isEmpty && _video == null) {
+      _showSnackBar('Please provide at least one evidence (photo or video)',
           isError: true);
       return;
     }
@@ -469,7 +454,6 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
     setState(() {
       _images.clear();
       _video = null;
-      _document = null;
       _locationController.clear();
       _descriptionController.clear();
     });
@@ -656,40 +640,6 @@ class _ReportCaseScreenState extends State<ReportCaseScreen> {
                         onPressed: () {
                           setState(() {
                             _video = null;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-              ],
-
-              if (_document != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFFFBE0B)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.insert_drive_file,
-                          color: Color(0xFFFFBE0B)),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          _document!.name,
-                          style: const TextStyle(fontSize: 14),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          setState(() {
-                            _document = null;
                           });
                         },
                       ),

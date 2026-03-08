@@ -1,7 +1,15 @@
-class ApiConfig {
-  // Gemini API key
-  // Get it from: https://makersuite.google.com/app/apikey
-  static const String geminiApiKey = 'AIzaSyBnb6FeL2lqH2N54_O2bUTPays2DUYiDYk';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-  // Note: For production, move this to environment variables or secure storage
+class ApiConfig {
+  static String get geminiApiKey {
+    final apiKey = dotenv.env['GEMINI_API_KEY']?.trim() ?? '';
+
+    if (apiKey.isEmpty) {
+      throw Exception(
+        'Missing GEMINI_API_KEY. Add it to the .env file in the project root.',
+      );
+    }
+
+    return apiKey;
+  }
 }
